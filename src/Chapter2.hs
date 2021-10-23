@@ -863,13 +863,9 @@ list.
 -}
 rotate :: Int -> [Int] -> [Int]
 rotate n l
-    | n < 0 = []
-    | null l = []
-    | otherwise = 
-        take len (drop (mod n len) (cycle l))
-          where
-            len = length l
-
+    | n >= 0    = let len = length l in take len $ drop (mod n len) (cycle l)
+    | otherwise = []
+        
 {- |
 =💣= Task 12*
 
