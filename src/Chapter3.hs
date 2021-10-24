@@ -1110,7 +1110,23 @@ Implement data types and typeclasses, describing such a battle between two
 contestants, and write a function that decides the outcome of a fight!
 -}
 
+data Knight' = Knight' { kHp :: Int, kAtk :: Int, kDef :: Int, kActions :: KnightActions }
+data Monster' = Monster' { mHp :: Int, mAtk :: Int, mActions :: MonsterActions }
 
+data KnightActions = KnightHit | DrinkPotion | CastSpell
+data MonsterActions = MonsterHit | Run
+
+class Fighter a where
+  fighterAttack :: Int -> a -> a
+
+
+instance Fighter Knight' where 
+  fighterAttack :: Int -> Knight' -> Knight'
+  fighterAttack monsterAtk knight = knight { kHp = kHp knight + kDef knight - monsterAtk } 
+
+instance Fighter Monster' where 
+  fighterAttack :: Int -> Monster' -> Monster'
+  fighterAttack knightAtk monster = monster { mHp = mHp monster - knightAtk }
 
 
 {-
