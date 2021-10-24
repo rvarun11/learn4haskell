@@ -1116,9 +1116,14 @@ data Monster' = Monster' { mHp :: Int, mAtk :: Int, mActions :: MonsterActions }
 data KnightActions = KnightHit | DrinkPotion | CastSpell
 data MonsterActions = MonsterHit | Run
 
+drinkPotion :: Int -> Knight' -> Knight'
+drinkPotion potionStrength knight = knight { kHp = kHp knight + potionStrength }
+
+castSpell :: Int -> Knight' -> Knight'
+castSpell spellStrength knight = knight { kDef = kDef knight + spellStrength }
+
 class Fighter a where
   fighterAttack :: Int -> a -> a
-
 
 instance Fighter Knight' where 
   fighterAttack :: Int -> Knight' -> Knight'
