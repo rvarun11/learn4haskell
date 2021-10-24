@@ -989,12 +989,12 @@ instance Append Gold where
 
 instance Append [a] where
   append :: [a] -> [a] -> [a]  
-  append = (++)
+  append x y = x ++ y
 
 instance Append a => Append (Maybe a) where
     append :: Maybe a -> Maybe a -> Maybe a
-    append Nothing mx = mx
-    append mx Nothing = mx
+    append Nothing y = y
+    append x Nothing = x
     append (Just x) (Just y) = Just (append x y)
 
 {-
@@ -1062,18 +1062,18 @@ data Day
   deriving (Show, Eq, Enum, Bounded)
 
 isWeekend :: Day -> Bool
-isWeekend d = case d of
+isWeekend day = case day of
     Sat -> True
     Sun -> True
     _ -> False
 
 nextDay :: Day -> Day
-nextDay d
-    | d == maxBound = minBound
-    | otherwise = succ d
+nextDay day
+    | day == maxBound = minBound
+    | otherwise = succ day
 
 daysToParty :: Day -> Int
-daysToParty d = (fromEnum Fri - fromEnum d) `mod` 7
+daysToParty d = mod (fromEnum Fri - fromEnum d) 7
 
 {-
 =💣= Task 9*
@@ -1109,6 +1109,8 @@ properties using typeclasses, but they are different data types in the end.
 Implement data types and typeclasses, describing such a battle between two
 contestants, and write a function that decides the outcome of a fight!
 -}
+
+
 
 
 {-
