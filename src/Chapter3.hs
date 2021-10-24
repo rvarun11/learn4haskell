@@ -611,32 +611,32 @@ introducing extra newtypes.
     implementation of the "hitPlayer" function at all!
 -}
 
-newtype Health    = Health    Int
-newtype Armor     = Armor     Int
-newtype Attack    = Attack    Int
-newtype Dexterity = Dexterity Int
-newtype Strength  = Strength  Int
-newtype Damage    = Damage    Int
-newtype Defense   = Defense   Int
+newtype Hp  = Hp  Int
+newtype Arm = Arm Int
+newtype Atk = Atk Int
+newtype Dex = Dex Int
+newtype Str = Str Int
+newtype Dmg = Dmg Int
+newtype Def  = Def Int
 
 data Player = Player
-    { playerHealth    :: Health
-    , playerArmor     :: Armor
-    , playerAttack    :: Attack
-    , playerDexterity :: Dexterity
-    , playerStrength  :: Strength 
+    { playerHealth    :: Hp
+    , playerArmor     :: Arm
+    , playerAttack    :: Atk
+    , playerDexterity :: Dex
+    , playerStrength  :: Str 
     }
 
-calculatePlayerDamage :: Attack -> Strength -> Damage
-calculatePlayerDamage (Attack attack) (Strength strength) = Damage (attack + strength)
+calculatePlayerDamage :: Atk -> Str -> Dmg
+calculatePlayerDamage (Atk attack) (Str strength) = Dmg (attack + strength)
 
-calculatePlayerDefense :: Armor -> Dexterity -> Defense
-calculatePlayerDefense (Armor armor) (Dexterity dexterity) =
-    Defense (armor * dexterity)
+calculatePlayerDefense :: Arm -> Dex -> Def
+calculatePlayerDefense (Arm armor) (Dex dexterity) =
+    Def (armor * dexterity)
 
-calculatePlayerHit :: Damage -> Defense -> Health -> Health
-calculatePlayerHit (Damage damage) (Defense defense) (Health health) =
-    Health (health + defense - damage)
+calculatePlayerHit :: Dmg -> Def -> Hp -> Hp
+calculatePlayerHit (Dmg damage) (Def defense) (Hp health) =
+    Hp (health + defense - damage)
 
 -- The second player hits first player and the new first player is returned
 hitPlayer :: Player -> Player -> Player
