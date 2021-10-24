@@ -525,7 +525,7 @@ buildCastle name city = case castle city of
 buildWalls :: MagicalCity -> MagicalCity
 buildWalls city = case castle city of
     OnlyCastle castleName ->
-        if sum (map countHouse (houses city)) >= 10
+        if sum (map countHouse (houses city)) > 9
         then city { castle = CastleWithWalls castleName}
         else city
     _ -> city
