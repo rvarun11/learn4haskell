@@ -1110,29 +1110,40 @@ Implement data types and typeclasses, describing such a battle between two
 contestants, and write a function that decides the outcome of a fight!
 -}
 
-data Knight' = Knight' { kHp :: Int, kAtk :: Int, kDef :: Int, kActions :: KnightActions }
-data Monster' = Monster' { mHp :: Int, mAtk :: Int, mActions :: MonsterActions }
+data Knight' = Knight' { kHp :: Int, kAtk :: Int, kDef :: Int }
+data Monster' = Monster' { mHp :: Int, mAtk :: Int } 
 
-data KnightActions = KnightHit | DrinkPotion | CastSpell
-data MonsterActions = MonsterHit | Run
 
-drinkPotion :: Int -> Knight' -> Knight'
-drinkPotion potionStrength knight = knight { kHp = kHp knight + potionStrength }
+class Attack a where
+  fighterAtk :: Int -> a -> a
 
-castSpell :: Int -> Knight' -> Knight'
-castSpell spellStrength knight = knight { kDef = kDef knight + spellStrength }
 
-class Fighter a where
-  fighterAttack :: Int -> a -> a
+instance Attack Knight' where 
+  fighterAtk :: Int -> Knight' -> Knight'
+  fighterAtk monsterAtk knight = knight { kHp = kHp knight + kDef knight - monsterAtk } 
 
-instance Fighter Knight' where 
-  fighterAttack :: Int -> Knight' -> Knight'
-  fighterAttack monsterAtk knight = knight { kHp = kHp knight + kDef knight - monsterAtk } 
+instance Attack Monster' where 
+  fighterAtk :: Int -> Monster' -> Monster'
+  fighterAtk knightAtk monster = monster { mHp = mHp monster - knightAtk }
 
-instance Fighter Monster' where 
-  fighterAttack :: Int -> Monster' -> Monster'
-  fighterAttack knightAtk monster = monster { mHp = mHp monster - knightAtk }
+class DrinkPotion a where
+  drinkPotion :: Int -> a -> a
 
+instance DrinkPotion Knight' where
+  drinkPotion :: Int -> Knight' -> Knight'
+  drinkPotion potionStrength knight = knight { kHp = kHp knight + potionStrength }
+
+class CastSpell a where
+  castSpell :: Int -> a -> a
+
+instance CastSpell Knight' where
+  castSpell :: Int -> Knight' -> Knight'
+  castSpell spellStrength knight = knight { kDef = kDef knight + spellStrength }
+
+
+data Fighter 
+  = Knight'' { hp :: Int, atk :: Int, def :: Int}
+  | Monster'' {hp :: Int, atk :: Int }
 
 {-
 You did it! Now it is time to open pull request with your changes
