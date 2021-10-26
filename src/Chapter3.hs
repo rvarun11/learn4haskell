@@ -1141,10 +1141,6 @@ instance CastSpell Knight' where
   castSpell spellStrength knight = knight { kDef = kDef knight + spellStrength }
 
 
-data Fighter 
-  = Knight'' { hp :: Int, atk :: Int, def :: Int}
-  | Monster'' {hp :: Int, atk :: Int }
-
 {-
 You did it! Now it is time to open pull request with your changes
 and summon @vrom911 and @chshersh for the review!
