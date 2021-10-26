@@ -344,6 +344,8 @@ of a book, but you are not limited only by the book properties we described.
 Create your own book type of your dreams!
 -}
 
+data Book = Book {title :: String, author :: String, copiesSold :: Int}
+
 {- |
 =⚔️= Task 2
 
@@ -375,6 +377,15 @@ after the fight. The battle has the following possible outcomes:
 ♫ NOTE: In this task, you need to implement only a single round of the fight.
 
 -}
+
+data Knight = Knight { knightHealth :: Int, knightAttack :: Int, knightGold :: Int } deriving (Show)
+data Monster = Monster { monsterHealth :: Int, monsterAttack :: Int, monsterGold :: Int } deriving (Show)
+
+fight :: Knight -> Monster -> Int
+fight knight monster
+    | monsterHealth monster <= knightAttack knight = knightGold knight + monsterGold monster
+    | knightHealth knight <= monsterAttack monster = -1
+    | otherwise = knightGold knight
 
 {- |
 =🛡= Sum types
@@ -462,6 +473,8 @@ Create a simple enumeration for the meal types (e.g. breakfast). The one who
 comes up with the most number of names wins the challenge. Use your creativity!
 -}
 
+data Meal = Breakfast | Lunch | Dinner
+
 {- |
 =⚔️= Task 4
 
@@ -481,6 +494,41 @@ After defining the city, implement the following functions:
    complicated task, walls can be built only if the city has a castle
    and at least 10 living __people__ inside in all houses of the city in total.
 -}
+
+data MagicalCity = MagicalCity {castle :: Castle, mainBuilding :: MainBuilding, houses :: [House]}
+
+data Castle
+  = None
+  | OnlyCastle String
+  | CastleWithWalls String
+
+data MainBuilding = Church | Library
+
+data House = OneMember | TwoMembers | ThreeMembers | FourMembers
+
+countHouse :: House -> Int
+countHouse house = case house of
+  OneMember -> 1
+  TwoMembers -> 2
+  ThreeMembers -> 3
+  FourMembers -> 4
+
+buildHouse :: House -> MagicalCity -> MagicalCity
+buildHouse house city =
+  city { houses = house : houses city } 
+
+buildCastle :: String -> MagicalCity -> MagicalCity
+buildCastle name city = case castle city of
+  CastleWithWalls _ -> city {castle = CastleWithWalls name}
+  _ -> city {castle = OnlyCastle name}
+
+buildWalls :: MagicalCity -> MagicalCity
+buildWalls city = case castle city of
+    OnlyCastle castleName ->
+        if sum (map countHouse (houses city)) > 9
+        then city { castle = CastleWithWalls castleName}
+        else city
+    _ -> city
 
 {-
 =🛡= Newtypes
@@ -562,22 +610,33 @@ introducing extra newtypes.
 🕯 HINT: if you complete this task properly, you don't need to change the
     implementation of the "hitPlayer" function at all!
 -}
+
+newtype Hp  = Hp  Int
+newtype Arm = Arm Int
+newtype Atk = Atk Int
+newtype Dex = Dex Int
+newtype Str = Str Int
+newtype Dmg = Dmg Int
+newtype Def  = Def Int
+
 data Player = Player
-    { playerHealth    :: Int
-    , playerArmor     :: Int
-    , playerAttack    :: Int
-    , playerDexterity :: Int
-    , playerStrength  :: Int
+    { playerHealth    :: Hp
+    , playerArmor     :: Arm
+    , playerAttack    :: Atk
+    , playerDexterity :: Dex
+    , playerStrength  :: Str 
     }
 
-calculatePlayerDamage :: Int -> Int -> Int
-calculatePlayerDamage attack strength = attack + strength
+calculatePlayerDamage :: Atk -> Str -> Dmg
+calculatePlayerDamage (Atk attack) (Str strength) = Dmg (attack + strength)
 
-calculatePlayerDefense :: Int -> Int -> Int
-calculatePlayerDefense armor dexterity = armor * dexterity
+calculatePlayerDefense :: Arm -> Dex -> Def
+calculatePlayerDefense (Arm armor) (Dex dexterity) =
+    Def (armor * dexterity)
 
-calculatePlayerHit :: Int -> Int -> Int -> Int
-calculatePlayerHit damage defense health = health + defense - damage
+calculatePlayerHit :: Dmg -> Def -> Hp -> Hp
+calculatePlayerHit (Dmg damage) (Def defense) (Hp health) =
+    Hp (health + defense - damage)
 
 -- The second player hits first player and the new first player is returned
 hitPlayer :: Player -> Player -> Player
@@ -755,6 +814,16 @@ parametrise data types in places where values can be of any general type.
   maybe-treasure ;)
 -}
 
+data DragonLair t p = DragonLair
+    { dragonLairChest :: Maybe (TreasureChest t)
+    , dragonLairDragonPower :: p
+    }
+
+data TreasureChest x = TreasureChest
+    { treasureChestGold :: Int
+    , treasureChestLoot :: x
+    }
+
 {-
 =🛡= Typeclasses
 
@@ -912,6 +981,21 @@ Implement instances of "Append" for the following types:
 class Append a where
     append :: a -> a -> a
 
+newtype Gold = Gold Int
+
+instance Append Gold where
+  append :: Gold -> Gold -> Gold
+  append (Gold x) (Gold y) = Gold (x + y)
+
+instance Append [a] where
+  append :: [a] -> [a] -> [a]  
+  append x y = x ++ y
+
+instance Append a => Append (Maybe a) where
+    append :: Maybe a -> Maybe a -> Maybe a
+    append Nothing y = y
+    append x Nothing = x
+    append (Just x) (Just y) = Just (append x y)
 
 {-
 =🛡= Standard Typeclasses and Deriving
@@ -973,6 +1057,24 @@ implement the following functions:
 🕯 HINT: to implement this task, derive some standard typeclasses
 -}
 
+data Day
+  = Mon | Tue | Wed | Thu | Fri | Sat | Sun
+  deriving (Show, Eq, Enum, Bounded)
+
+isWeekend :: Day -> Bool
+isWeekend day = case day of
+    Sat -> True
+    Sun -> True
+    _ -> False
+
+nextDay :: Day -> Day
+nextDay day
+    | day == maxBound = minBound
+    | otherwise = succ day
+
+daysToParty :: Day -> Int
+daysToParty d = mod (fromEnum Fri - fromEnum d) 7
+
 {-
 =💣= Task 9*
 
@@ -1007,6 +1109,36 @@ properties using typeclasses, but they are different data types in the end.
 Implement data types and typeclasses, describing such a battle between two
 contestants, and write a function that decides the outcome of a fight!
 -}
+
+data Knight' = Knight' { kHp :: Int, kAtk :: Int, kDef :: Int }
+data Monster' = Monster' { mHp :: Int, mAtk :: Int } 
+
+
+class Attack a where
+  fighterAtk :: Int -> a -> a
+
+
+instance Attack Knight' where 
+  fighterAtk :: Int -> Knight' -> Knight'
+  fighterAtk monsterAtk knight = knight { kHp = kHp knight + kDef knight - monsterAtk } 
+
+instance Attack Monster' where 
+  fighterAtk :: Int -> Monster' -> Monster'
+  fighterAtk knightAtk monster = monster { mHp = mHp monster - knightAtk }
+
+class DrinkPotion a where
+  drinkPotion :: Int -> a -> a
+
+instance DrinkPotion Knight' where
+  drinkPotion :: Int -> Knight' -> Knight'
+  drinkPotion potionStrength knight = knight { kHp = kHp knight + potionStrength }
+
+class CastSpell a where
+  castSpell :: Int -> a -> a
+
+instance CastSpell Knight' where
+  castSpell :: Int -> Knight' -> Knight'
+  castSpell spellStrength knight = knight { kDef = kDef knight + spellStrength }
 
 
 {-
